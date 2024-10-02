@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdbool.h>
 #include "types.h"
 #include "minesweeper.h"
 
@@ -24,6 +25,11 @@ u32 xy_to_bit_position(const u32 x, const u32 y, const u32 width)
 	return (y * width + x) % GRID_TYPE_BITS;
 }
 
+bool is_valid_point(u32 x, u32 y, u32 width, u32 height)
+{
+	return x < width && y < height;
+}
+
 void minesweep_print(const minesweep_t minesweep)
 {
 	printf("Width: %u\n", minesweep.width);
@@ -42,7 +48,7 @@ void minesweep_print(const minesweep_t minesweep)
 		} else {
 			printf("?");
 		}
-		printf("(%02u) ", grid_index);
+		//printf("(%02u) ", grid_index);
 	}
 	printf("\n");
 }
@@ -57,9 +63,9 @@ minesweep_t minesweep_new(const u32 width, const u32 height, u32 *grid)
 
 	return (minesweep_t) {
 		.width = width,
-			.height = height,
-			.grid = grid,
-			.mask = mask,
+		.height = height,
+		.grid = grid,
+		.mask = mask,
 	};
 }
 
@@ -71,7 +77,7 @@ u32* minesweep_create_random_grid(const u32 width, const u32 height)
 
 	const u32 grid_size = width * height;
 	for (u32 i = 0; i < grid_size; i++) {
-		if(rand() & 1) {
+		if(rand() % 10 <= 2) {
 			const u32 grid_index = i / GRID_TYPE_BITS;
 			grid[grid_index] |= 1 << i;
 		}
@@ -82,7 +88,27 @@ u32* minesweep_create_random_grid(const u32 width, const u32 height)
 
 void minesweep_flip_position(minesweep_t *minesweep, u32 x, u32 y)
 {
+	if (!is_valid_point(x, y, minesweep->width, minesweep->height)) return;
+
 	const u32 index = xy_to_index(x, y, minesweep->width);
 	const u32 bit_position = xy_to_bit_position(x, y, minesweep->width);
 	minesweep->mask[index] |= 1 << bit_position;
+}
+
+void minesweep_flip_blank_neightbors(minesweep_t *minesweep, u32 x, u32 y, u32 current_deep, u32 max_deep)
+{
+	if (current_deep >= max_deep) return;
+	if (!is_valid_point(x, y, minesweep->width, minesweep->height)) return;
+
+	u32 index = xy_to_index(x, y, minesweep->width);
+	u32 bit_position = xy_to_bit_position(x, y, minesweep->width);
+
+	if (minesweep->grid[index] & 1 << bit_position) return;
+	if (minesweep->mask[index] & 1 << bit_position) return;
+	minesweep->mask[index] |= 1 << bit_position;
+
+	minesweep_flip_blank_neightbors(minesweep, x+1, y, current_deep+1, max_deep);
+	minesweep_flip_blank_neightbors(minesweep, x, y+1, current_deep+1, max_deep);
+	if (x > 0) minesweep_flip_blank_neightbors(minesweep, x-1, y, current_deep+1, max_deep);
+	if (y > 0) minesweep_flip_blank_neightbors(minesweep, x, y-1, current_deep+1, max_deep);
 }
