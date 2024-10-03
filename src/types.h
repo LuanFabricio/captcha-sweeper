@@ -3,5 +3,6 @@
 
 typedef unsigned int u32;
 typedef int i32;
+typedef enum { false, true } boolean;
 
 #endif // __TYPES__H_
