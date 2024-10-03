@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <stdbool.h>
 #include "types.h"
 #include "minesweeper.h"
 
@@ -25,7 +24,7 @@ u32 xy_to_bit_position(const u32 x, const u32 y, const u32 width)
 	return (y * width + x) % GRID_TYPE_BITS;
 }
 
-bool is_valid_point(u32 x, u32 y, u32 width, u32 height)
+boolean is_valid_point(u32 x, u32 y, u32 width, u32 height)
 {
 	return x < width && y < height;
 }
@@ -93,6 +92,15 @@ void minesweep_flip_position(minesweep_t *minesweep, u32 x, u32 y)
 	const u32 index = xy_to_index(x, y, minesweep->width);
 	const u32 bit_position = xy_to_bit_position(x, y, minesweep->width);
 	minesweep->mask[index] |= 1 << bit_position;
+
+	if (minesweep->grid[index] & 1 << bit_position) return;
+
+	const u32 current_deep = 0;
+	const u32 max_deep = 3;
+	minesweep_flip_blank_neightbors(minesweep, x+1, y, current_deep+1, max_deep);
+	minesweep_flip_blank_neightbors(minesweep, x, y+1, current_deep+1, max_deep);
+	if (x > 0) minesweep_flip_blank_neightbors(minesweep, x-1, y, current_deep+1, max_deep);
+	if (y > 0) minesweep_flip_blank_neightbors(minesweep, x, y-1, current_deep+1, max_deep);
 }
 
 void minesweep_flip_blank_neightbors(minesweep_t *minesweep, u32 x, u32 y, u32 current_deep, u32 max_deep)
@@ -111,4 +119,16 @@ void minesweep_flip_blank_neightbors(minesweep_t *minesweep, u32 x, u32 y, u32 c
 	minesweep_flip_blank_neightbors(minesweep, x, y+1, current_deep+1, max_deep);
 	if (x > 0) minesweep_flip_blank_neightbors(minesweep, x-1, y, current_deep+1, max_deep);
 	if (y > 0) minesweep_flip_blank_neightbors(minesweep, x, y-1, current_deep+1, max_deep);
+}
+
+boolean minesweep_is_game_done(const minesweep_t minesweep)
+{
+	const u32 total_size = minesweep.width * minesweep.height;
+	for (u32 i = 0; i < total_size; i++) {
+		const u32 grid_index = i / GRID_TYPE_BITS;
+		const u32 mask = minesweep.mask[grid_index] >> i & 1;
+		const u32 grid = minesweep.grid[grid_index] >> i & 1;
+		if (mask && grid) return true;
+	}
+	return false;
 }
