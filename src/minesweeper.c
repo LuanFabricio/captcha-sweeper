@@ -24,7 +24,7 @@ u32 xy_to_bit_position(const u32 x, const u32 y, const u32 width)
 	return (y * width + x) % GRID_TYPE_BITS;
 }
 
-boolean is_valid_point(u32 x, u32 y, u32 width, u32 height)
+bool is_valid_point(u32 x, u32 y, u32 width, u32 height)
 {
 	return x < width && y < height;
 }
@@ -121,7 +121,7 @@ void minesweep_flip_blank_neightbors(minesweep_t *minesweep, u32 x, u32 y, u32 c
 	if (y > 0) minesweep_flip_blank_neightbors(minesweep, x, y-1, current_deep+1, max_deep);
 }
 
-boolean minesweep_is_game_done(const minesweep_t minesweep)
+bool minesweep_is_game_done(const minesweep_t minesweep)
 {
 	const u32 total_size = minesweep.width * minesweep.height;
 	for (u32 i = 0; i < total_size; i++) {

@@ -3,6 +3,9 @@
 
 typedef unsigned int u32;
 typedef int i32;
-typedef enum { false, true } boolean;
+
+#ifndef __bool_true_false_are_defined
+typedef enum { false, true } bool;
+#endif // __STDBOOL_H
 
 #endif // __TYPES__H_
