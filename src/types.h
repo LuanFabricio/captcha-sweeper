@@ -3,6 +3,7 @@
 
 typedef unsigned int u32;
 typedef int i32;
+typedef float f32;
 
 #ifndef __bool_true_false_are_defined
 typedef enum { false, true } bool;
