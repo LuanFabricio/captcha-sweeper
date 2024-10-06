@@ -68,6 +68,14 @@ minesweep_t minesweep_new(const u32 width, const u32 height, u32 *grid)
 	};
 }
 
+void minesweep_reset(minesweep_t* minesweep)
+{
+	for (u32 i = 0; i < number_of_instances(minesweep->width, minesweep->width); i++)
+		minesweep->mask[i] = 0;
+	free(minesweep->grid);
+	minesweep->grid = minesweep_create_random_grid(minesweep->width, minesweep->height);
+}
+
 u32* minesweep_create_random_grid(const u32 width, const u32 height)
 {
 	srand(time(NULL));
@@ -75,12 +83,26 @@ u32* minesweep_create_random_grid(const u32 width, const u32 height)
 	u32 *grid = (u32*)malloc(sizeof(u32) * num_instances);
 
 	const u32 grid_size = width * height;
-	for (u32 i = 0; i < grid_size; i++) {
-		if(rand() % 10 <= 2) {
-			const u32 grid_index = i / GRID_TYPE_BITS;
-			grid[grid_index] |= 1 << i;
-		}
+	for (u32 i = 0; i < num_instances; i++) grid[i] = 0;
+
+	for (u32 i = 0; i < MAX_BOMBS; i++) {
+		const u32 x = rand() % width;
+		const u32 y= rand() % height;
+
+		const u32 index = xy_to_index(x, y, width);
+		const u32 bit = xy_to_bit_position(x, y, width);
+		grid[index] |= 1 << bit;
+		printf("Spawning bomb %u of %u...\n", i, MAX_BOMBS);
 	}
+
+	// for (u32 i = 0; i < grid_size; i++) {
+	// 	const u32 rand_u32 = (rand() % 10);
+	// 	printf("Rand: %u %s\n", rand_u32, rand_u32 <= 2 ? "Bomb" : "Not bomb");
+	// 	if (rand_u32 <= 2) {
+	// 		const u32 grid_index = i / GRID_TYPE_BITS;
+	// 		grid[grid_index] |= 1 << i;
+	// 	}
+	// }
 
 	return grid;
 }
@@ -96,7 +118,7 @@ void minesweep_flip_position(minesweep_t *minesweep, u32 x, u32 y)
 	if (minesweep->grid[index] & 1 << bit_position) return;
 
 	const u32 current_deep = 0;
-	const u32 max_deep = 3;
+	const u32 max_deep = 4;
 	minesweep_flip_blank_neightbors(minesweep, x+1, y, current_deep+1, max_deep);
 	minesweep_flip_blank_neightbors(minesweep, x, y+1, current_deep+1, max_deep);
 	if (x > 0) minesweep_flip_blank_neightbors(minesweep, x-1, y, current_deep+1, max_deep);
@@ -121,6 +143,15 @@ void minesweep_flip_blank_neightbors(minesweep_t *minesweep, u32 x, u32 y, u32 c
 	if (y > 0) minesweep_flip_blank_neightbors(minesweep, x, y-1, current_deep+1, max_deep);
 }
 
+void minesweep_flip_all(minesweep_t *minesweep)
+{
+	const u32 total_instances = number_of_instances(minesweep->width, minesweep->height);
+
+	for (u32 i = 0; i < total_instances; i++) {
+		minesweep->mask[i] = 0xffffffff;
+	}
+}
+
 bool minesweep_is_game_done(const minesweep_t minesweep)
 {
 	const u32 total_size = minesweep.width * minesweep.height;
@@ -131,4 +162,24 @@ bool minesweep_is_game_done(const minesweep_t minesweep)
 		if (mask && grid) return true;
 	}
 	return false;
+}
+
+bool minesweep_player_won(const minesweep_t minesweep)
+{
+	const u32 total_bits = minesweep.width * minesweep.height;
+	u32 total_bombs = 0;
+	u32 total_empty_unmasked = 0;
+	for (u32 i = 0; i < total_bits; i++) {
+		const u32 index = i / GRID_TYPE_BITS;
+		const u32 grid = minesweep.grid[index] >> i & 1;
+		if (grid) {
+			total_bombs++;
+			continue;
+		}
+
+		const u32 mask = minesweep.mask[index] >> i & 1;
+		if (mask && grid == 0) total_empty_unmasked++;
+	}
+
+	return total_empty_unmasked + total_bombs == total_bits;
 }
