@@ -1,5 +1,5 @@
-#ifndef __CAPTCHA_H__
-#define __CAPTCHA_H__
+#ifndef __MINESWEEP_H__
+#define __MINESWEEP_H__
 
 #include "types.h"
 
@@ -21,4 +21,4 @@ void minesweep_flip_all(minesweep_t *minesweep);
 bool minesweep_is_game_done(const minesweep_t minesweep);
 bool minesweep_player_won(const minesweep_t minesweep);
 
-#endif // __CAPTCHA__H_
+#endif // __MINESWEEP__H_
