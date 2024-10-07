@@ -3,6 +3,7 @@
 
 #include "../src/types.h"
 #include "../src/minesweeper.h"
+#include "../src/captcha.h"
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
@@ -183,26 +184,37 @@ void draw_reset_ui(reset_ui_content_t reset_content, bool is_reset_selected)
 
 int main(void)
 {
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "CaptchaSweeper");
+	captcha_t captcha = captcha_create(minesweep_new(GRID_WIDTH, GRID_HEIGHT, minesweep_create_random_grid(GRID_WIDTH, GRID_HEIGHT)));
 
-	minesweep_t minesweep = minesweep_new(GRID_WIDTH, GRID_HEIGHT, minesweep_create_random_grid(GRID_WIDTH, GRID_HEIGHT));
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "CaptchaSweeper");
 	// minesweep.mask[0] = -1;
 
 	reset_ui_content_t reset_contet = init_reset_ui_content();
 	bool is_reset_selected = false;
 
 	while(!WindowShouldClose()) {
-		const bool is_game_over = minesweep_is_game_done(minesweep);
-		const bool player_win = minesweep_player_won(minesweep);
+		const bool is_game_over = minesweep_is_game_done(captcha.minesweep);
+		const bool player_win = minesweep_player_won(captcha.minesweep);
 
 		BeginDrawing();
 		ClearBackground((Color){ .r=0, .g=0, .b=0, .a=0xff});
 
-		draw_minesweep(minesweep);
-		if (is_game_over) {
-			draw_reset_ui(reset_contet, is_reset_selected);
-		} else if (player_win) {
-			DrawText("Player wins!", 320, 320, 32, DARKBLUE);
+		switch (captcha.state.current_state) {
+			case STATE_ON_CAPTCHA:
+				{
+					draw_minesweep(captcha.minesweep);
+					if (is_game_over) {
+						draw_reset_ui(reset_contet, is_reset_selected);
+					} else if (player_win) {
+						DrawText("Player wins!", 320, 320, 32, DARKBLUE);
+					}
+				}
+				break;
+			case STATE_CONFIRMED:
+				{
+					DrawText("Game over :)", 300, 300, 32, GREEN);
+				}
+				break;
 		}
 
 		EndDrawing();
@@ -219,14 +231,16 @@ int main(void)
 
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 			if (is_game_over) {
-				minesweep_reset(&minesweep);
+				minesweep_reset(&captcha.minesweep);
 			} else if (!player_win) {
 				Vector2 position = world_to_grid(mouse_position);
 				if (position.x != -1.f || position.y != -1.f) {
-					minesweep_flip_position(&minesweep,
+					minesweep_flip_position(&captcha.minesweep,
 							(u32)position.x, (u32)position.y);
-					if (minesweep_is_game_done(minesweep)) {
-						minesweep_flip_all(&minesweep);
+					if (minesweep_is_game_done(captcha.minesweep)) {
+						minesweep_flip_all(&captcha.minesweep);
+					} else if (minesweep_player_won(captcha.minesweep)) {
+						state_next(&captcha.state);
 					}
 				}
 			}
