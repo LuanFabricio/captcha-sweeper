@@ -230,7 +230,7 @@ int main(void)
 		}
 
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-			if (is_game_over) {
+			if (is_game_over && is_reset_selected) {
 				minesweep_reset(&captcha.minesweep);
 			} else if (!player_win) {
 				Vector2 position = world_to_grid(mouse_position);
