@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include "src/types.h"
-#include "src/minesweeper.h"
+#include "src/core/types.h"
+#include "src/core/minesweeper.h"
 
 int main(void)
 {

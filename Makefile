@@ -1,10 +1,10 @@
-dependencies = src/minesweeper.c src/captcha.c src/state.c
+dependencies = src/core/minesweeper.c src/core/captcha.c src/core/state.c
 
 all: build-folder
 	gcc -o build/main.out main.c $(dependencies)
 
 raylib: build-folder
-	gcc -o build/raylib raylib/main.c $(dependencies) -lraylib
+	gcc -o build/raylib src/raylib.c $(dependencies) -lraylib
 
 build-folder:
 	mkdir -p build

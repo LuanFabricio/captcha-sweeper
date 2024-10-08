@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include "raylib.h"
 
-#include "../src/types.h"
-#include "../src/minesweeper.h"
-#include "../src/captcha.h"
+#include "core/types.h"
+#include "core/minesweeper.h"
+#include "core/captcha.h"
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
