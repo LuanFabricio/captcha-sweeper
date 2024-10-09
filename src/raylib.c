@@ -191,6 +191,7 @@ int main(void)
 
 	reset_ui_content_t reset_contet = init_reset_ui_content();
 	bool is_reset_selected = false;
+	Texture2D pumpkin = LoadTexture("assets/sprites/pumpkin.png");
 
 	while(!WindowShouldClose()) {
 		const bool is_game_over = minesweep_is_game_done(captcha.minesweep);
@@ -198,6 +199,7 @@ int main(void)
 
 		BeginDrawing();
 		ClearBackground((Color){ .r=0, .g=0, .b=0, .a=0xff});
+
 
 		switch (captcha.state.current_state) {
 			case STATE_ON_CAPTCHA:
@@ -212,6 +214,7 @@ int main(void)
 				break;
 			case STATE_CONFIRMED:
 				{
+					DrawTexture(pumpkin, 300, 300, WHITE);
 					DrawText("Game over :)", 300, 300, 32, GREEN);
 				}
 				break;
