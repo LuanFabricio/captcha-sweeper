@@ -92,17 +92,7 @@ u32* minesweep_create_random_grid(const u32 width, const u32 height)
 		const u32 index = xy_to_index(x, y, width);
 		const u32 bit = xy_to_bit_position(x, y, width);
 		grid[index] |= 1 << bit;
-		printf("Spawning bomb %u of %u...\n", i, MAX_BOMBS);
 	}
-
-	// for (u32 i = 0; i < grid_size; i++) {
-	// 	const u32 rand_u32 = (rand() % 10);
-	// 	printf("Rand: %u %s\n", rand_u32, rand_u32 <= 2 ? "Bomb" : "Not bomb");
-	// 	if (rand_u32 <= 2) {
-	// 		const u32 grid_index = i / GRID_TYPE_BITS;
-	// 		grid[grid_index] |= 1 << i;
-	// 	}
-	// }
 
 	return grid;
 }
