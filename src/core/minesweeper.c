@@ -29,6 +29,12 @@ bool is_valid_point(u32 x, u32 y, u32 width, u32 height)
 	return x < width && y < height;
 }
 
+void flip_value(minesweep_t* minesweep, u32 index, u32 bit_position)
+{
+	minesweep->mask[index] |= 1 << bit_position;
+	minesweep->mark[index] &= ((1 << bit_position) ^ -1);
+}
+
 void minesweep_print(const minesweep_t minesweep)
 {
 	printf("Width: %u\n", minesweep.width);
@@ -56,8 +62,10 @@ minesweep_t minesweep_new(const u32 width, const u32 height, u32 *grid)
 {
 	const u32 num_instances = number_of_instances(width, height);
 	u32 *mask = (u32*)malloc(sizeof(u32) * num_instances);
+	u32 *mark = (u32*)malloc(sizeof(u32) * num_instances);
 	for (u32 i = 0; i < num_instances; i++) {
 		mask[i] = 0;
+		mark[i] = 0;
 	}
 
 	return (minesweep_t) {
@@ -65,13 +73,16 @@ minesweep_t minesweep_new(const u32 width, const u32 height, u32 *grid)
 		.height = height,
 		.grid = grid,
 		.mask = mask,
+		.mark = mark,
 	};
 }
 
 void minesweep_reset(minesweep_t* minesweep)
 {
-	for (u32 i = 0; i < number_of_instances(minesweep->width, minesweep->width); i++)
+	for (u32 i = 0; i < number_of_instances(minesweep->width, minesweep->width); i++) {
 		minesweep->mask[i] = 0;
+		minesweep->mark[i] = 0;
+	}
 	free(minesweep->grid);
 	minesweep->grid = minesweep_create_random_grid(minesweep->width, minesweep->height);
 }
@@ -103,7 +114,7 @@ void minesweep_flip_position(minesweep_t *minesweep, u32 x, u32 y)
 
 	const u32 index = xy_to_index(x, y, minesweep->width);
 	const u32 bit_position = xy_to_bit_position(x, y, minesweep->width);
-	minesweep->mask[index] |= 1 << bit_position;
+	flip_value(minesweep, index, bit_position);
 
 	if (minesweep->grid[index] & 1 << bit_position) return;
 
@@ -125,7 +136,7 @@ void minesweep_flip_blank_neightbors(minesweep_t *minesweep, u32 x, u32 y, u32 c
 
 	if (minesweep->grid[index] & 1 << bit_position) return;
 	if (minesweep->mask[index] & 1 << bit_position) return;
-	minesweep->mask[index] |= 1 << bit_position;
+	flip_value(minesweep, index, bit_position);
 
 	minesweep_flip_blank_neightbors(minesweep, x+1, y, current_deep+1, max_deep);
 	minesweep_flip_blank_neightbors(minesweep, x, y+1, current_deep+1, max_deep);
@@ -139,7 +150,17 @@ void minesweep_flip_all(minesweep_t *minesweep)
 
 	for (u32 i = 0; i < total_instances; i++) {
 		minesweep->mask[i] = 0xffffffff;
+		minesweep->mark[i] = 0;
 	}
+}
+
+void minesweep_set_mark(minesweep_t *minesweep, u32 x, u32 y)
+{
+	if (!is_valid_point(x, y, minesweep->width, minesweep->height)) return;
+	const u32 index = xy_to_index(x, y, minesweep->width);
+	const u32 bit_position = xy_to_bit_position(x, y, minesweep->width);
+
+	minesweep->mark[index] |= 1 << bit_position;
 }
 
 bool minesweep_is_game_done(const minesweep_t minesweep)
