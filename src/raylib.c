@@ -116,7 +116,7 @@ Vector2 world_to_grid(Vector2 position)
 	return res;
 }
 
-void draw_minesweep(const minesweep_t minesweep)
+void draw_minesweep(const minesweep_t minesweep, const Texture2D flagTexture)
 {
 	u32 x = GRID_OFFSET_X;
 	u32 y = GRID_OFFSET_Y;
@@ -138,6 +138,9 @@ void draw_minesweep(const minesweep_t minesweep)
 		}
 
 		DrawRectangle(x, y, GRID_SIZE, GRID_SIZE, *(Color*)&color);
+
+		const u32 mark = minesweep.mark[grid_index] >> i & 1;
+		if (mark) DrawTexture(flagTexture, x + flagTexture.width / 2, y, WHITE);
 
 		x += GRID_SIZE + GRID_PAD;
 	}
@@ -192,6 +195,7 @@ int main(void)
 	reset_ui_content_t reset_contet = init_reset_ui_content();
 	bool is_reset_selected = false;
 	Texture2D pumpkin = LoadTexture("assets/sprites/pumpkin.png");
+	Texture2D flag = LoadTexture("assets/sprites/flag.png");
 
 	while(!WindowShouldClose()) {
 		const bool is_game_over = minesweep_is_game_done(captcha.minesweep);
@@ -204,11 +208,9 @@ int main(void)
 		switch (captcha.state.current_state) {
 			case STATE_ON_CAPTCHA:
 				{
-					draw_minesweep(captcha.minesweep);
+					draw_minesweep(captcha.minesweep, flag);
 					if (is_game_over) {
 						draw_reset_ui(reset_contet, is_reset_selected);
-					} else if (player_win) {
-						DrawText("Player wins!", 320, 320, 32, DARKBLUE);
 					}
 				}
 				break;
@@ -232,11 +234,11 @@ int main(void)
 			is_reset_selected = collide_x && collide_y;
 		}
 
+		Vector2 position = world_to_grid(mouse_position);
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 			if (is_game_over && is_reset_selected) {
 				minesweep_reset(&captcha.minesweep);
 			} else if (!player_win) {
-				Vector2 position = world_to_grid(mouse_position);
 				if (position.x != -1.f || position.y != -1.f) {
 					minesweep_flip_position(&captcha.minesweep,
 							(u32)position.x, (u32)position.y);
@@ -247,6 +249,8 @@ int main(void)
 					}
 				}
 			}
+		} else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+			minesweep_set_mark(&captcha.minesweep, position.x, position.y);
 		}
 	}
 
