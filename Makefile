@@ -1,4 +1,4 @@
-dependencies = src/core/minesweeper.c src/core/captcha.c src/core/state.c
+dependencies = $(shell find src/core/ -type f -name '*.c')
 
 all: build-folder
 	gcc -o build/main.out main.c $(dependencies)
