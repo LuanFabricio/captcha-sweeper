@@ -1,6 +1,7 @@
 #ifndef __TYPES__H_
 #define __TYPES__H_
 
+typedef int i32;
 typedef unsigned int u32;
 typedef int i32;
 typedef float f32;
