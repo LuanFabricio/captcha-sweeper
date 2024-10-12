@@ -4,16 +4,19 @@
 #include "types.h"
 
 #define GRID_TYPE_BITS 32
+#define MAX_GRID_BUFFER 8
 #define MAX_BOMBS 6
 
 typedef struct {
 	u32 width, height;
-	u32 *grid, *mask, *mark;
+	u32 grid[MAX_GRID_BUFFER];
+	u32 mask[MAX_GRID_BUFFER];
+	u32 mark[MAX_GRID_BUFFER];
 } minesweep_t;
 
 void minesweep_print(minesweep_t minesweep);
-minesweep_t minesweep_new(u32 width, u32 height, u32 *grid);
-u32* minesweep_create_random_grid(u32 width, u32 height);
+minesweep_t minesweep_new(u32 width, u32 height);
+void minesweep_create_random_grid(u32 *grid, const u32 width, const u32 height);
 void minesweep_reset(minesweep_t* minesweep);
 void minesweep_flip_position(minesweep_t *minesweep, u32 x, u32 y);
 void minesweep_flip_blank_neightbors(minesweep_t *minesweep, u32 x, u32 y, u32 current_deep, u32 max_deep);

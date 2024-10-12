@@ -1,6 +1,11 @@
+// #include <stdlib.h>
+// #include <time.h>
+
+#ifndef WEB
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#endif
+
+#include "platform.h"
 #include "types.h"
 #include "minesweeper.h"
 
@@ -35,6 +40,7 @@ void flip_value(minesweep_t* minesweep, u32 index, u32 bit_position)
 	minesweep->mark[index] &= ((1 << bit_position) ^ -1);
 }
 
+#ifndef WEB
 void minesweep_print(const minesweep_t minesweep)
 {
 	printf("Width: %u\n", minesweep.width);
@@ -57,24 +63,16 @@ void minesweep_print(const minesweep_t minesweep)
 	}
 	printf("\n");
 }
+#endif
 
-minesweep_t minesweep_new(const u32 width, const u32 height, u32 *grid)
+minesweep_t minesweep_new(const u32 width, const u32 height)
 {
 	const u32 num_instances = number_of_instances(width, height);
-	u32 *mask = (u32*)malloc(sizeof(u32) * num_instances);
-	u32 *mark = (u32*)malloc(sizeof(u32) * num_instances);
-	for (u32 i = 0; i < num_instances; i++) {
-		mask[i] = 0;
-		mark[i] = 0;
-	}
+	minesweep_t minesweep = {0};
+	minesweep.width = width;
+	minesweep.height = height;
 
-	return (minesweep_t) {
-		.width = width,
-		.height = height,
-		.grid = grid,
-		.mask = mask,
-		.mark = mark,
-	};
+	return minesweep;
 }
 
 void minesweep_reset(minesweep_t* minesweep)
@@ -83,29 +81,24 @@ void minesweep_reset(minesweep_t* minesweep)
 		minesweep->mask[i] = 0;
 		minesweep->mark[i] = 0;
 	}
-	free(minesweep->grid);
-	minesweep->grid = minesweep_create_random_grid(minesweep->width, minesweep->height);
+	minesweep_create_random_grid(minesweep->grid, minesweep->width, minesweep->height);
 }
 
-u32* minesweep_create_random_grid(const u32 width, const u32 height)
+void minesweep_create_random_grid(u32 *grid, const u32 width, const u32 height)
 {
-	srand(time(NULL));
 	const u32 num_instances = number_of_instances(width, height);
-	u32 *grid = (u32*)malloc(sizeof(u32) * num_instances);
 
 	const u32 grid_size = width * height;
 	for (u32 i = 0; i < num_instances; i++) grid[i] = 0;
 
 	for (u32 i = 0; i < MAX_BOMBS; i++) {
-		const u32 x = rand() % width;
-		const u32 y= rand() % height;
+		const u32 x = platform_rand() % width;
+		const u32 y = platform_rand() % height;
 
 		const u32 index = xy_to_index(x, y, width);
 		const u32 bit = xy_to_bit_position(x, y, width);
 		grid[index] |= 1 << bit;
 	}
-
-	return grid;
 }
 
 void minesweep_flip_position(minesweep_t *minesweep, u32 x, u32 y)
