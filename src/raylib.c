@@ -1,6 +1,9 @@
+#include <time.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include "raylib.h"
 
+#include "core/platform.h"
 #include "core/types.h"
 #include "core/minesweeper.h"
 #include "core/captcha.h"
@@ -185,9 +188,18 @@ void draw_reset_ui(reset_ui_content_t reset_content, bool is_reset_selected)
 	// DrawRectangleLinesEx(reset_content.reset_rect, 1.f, GREEN);
 }
 
+i32 platform_rand()
+{
+	return rand();
+}
+
 int main(void)
 {
-	captcha_t captcha = captcha_create(minesweep_new(GRID_WIDTH, GRID_HEIGHT, minesweep_create_random_grid(GRID_WIDTH, GRID_HEIGHT)));
+	srand(time(NULL));
+
+	minesweep_t minesweep = minesweep_new(GRID_WIDTH, GRID_HEIGHT);
+	minesweep_create_random_grid(minesweep.grid, GRID_WIDTH, GRID_HEIGHT);
+	captcha_t captcha = captcha_create(minesweep);
 
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "CaptchaSweeper");
 	// minesweep.mask[0] = -1;
