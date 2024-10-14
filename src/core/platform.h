@@ -19,12 +19,15 @@ u32 platform_measure_text(const char* text, u32 font_size);
 
 vec2_t platform_measure_text_ex(const char* text, u32 font_size, u32 spacing);
 
+// TODO: Move signature to x, y, w and h
 void platform_draw_rectangle(const rectangle_t rect, const u32 color);
 
+// TODO: Move signature to texture_bytes, width, height, x and y
 void platform_draw_texture(const texture_t tex, const vec2_t pos, u32 tint);
 
 void platform_draw_text(const char* text, u32 x, u32 y, u32 font, u32 color);
 
+// TODO: Move signature to x,y
 void platform_draw_text_ex(const char* text, vec2_t pos, u32 font, u32 spacing, u32 color);
 
 vec2_t platform_get_mouse_position();
