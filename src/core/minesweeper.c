@@ -1,6 +1,3 @@
-// #include <stdlib.h>
-// #include <time.h>
-
 #ifndef WEB
 #include <stdio.h>
 #endif
