@@ -61,9 +61,9 @@ vec2_t platform_measure_text_ex(const char* text, u32 font_size, u32 spacing)
 	};
 }
 
-void platform_draw_rectangle(const rectangle_t rect, const u32 color)
+void platform_draw_rectangle(const f32 x, const f32 y, const f32 w, const f32 h, const u32 color)
 {
-	DrawRectangleRec(*(Rectangle*)&rect, U32_TO_COLOR(color));
+	DrawRectangle(x, y, w, h, U32_TO_COLOR(color));
 }
 
 void platform_draw_texture(const texture_t tex, const vec2_t pos, u32 tint)
@@ -89,9 +89,9 @@ void platform_draw_text(const char* text, u32 x, u32 y, u32 font_size, u32 color
 	DrawText(text, x, y, font_size, U32_TO_COLOR(color));
 }
 
-void platform_draw_text_ex(const char* text, vec2_t pos, u32 font_size, u32 spacing, u32 color)
+void platform_draw_text_ex(const char* text, f32 x, f32 y, u32 font_size, u32 spacing, u32 color)
 {
-	DrawTextEx(font, text, TYPE_CAST(Vector2, pos), font_size, spacing, U32_TO_COLOR(color));
+	DrawTextEx(font, text, (Vector2){x, y}, font_size, spacing, U32_TO_COLOR(color));
 }
 
 vec2_t platform_get_mouse_position()

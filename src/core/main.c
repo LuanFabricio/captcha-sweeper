@@ -123,7 +123,7 @@ void draw_minesweep(const minesweep_t minesweep, const texture_t flagTexture)
 			else color = UNMASK_NO_BOMB_COLOR;
 		}
 
-		platform_draw_rectangle((rectangle_t){x, y, GRID_SIZE, GRID_SIZE}, color);
+		platform_draw_rectangle(x, y, GRID_SIZE, GRID_SIZE, color);
 
 		const u32 mark = minesweep.mark[grid_index] >> i & 1;
 		if (mark) platform_draw_texture(flagTexture, (vec2_t){x + flagTexture.width / 2, y}, WHITE);
@@ -153,16 +153,18 @@ void draw_reset_ui(reset_ui_content_t *reset_content, bool is_reset_selected)
 		SCREEN_HEIGHT / 2.0 + 15,
 	};
 
-	platform_draw_rectangle(RESET_RECTANGLE_BORDER, GRAY);
-	platform_draw_rectangle(RESET_RECTANGLE, BLACK);
+	platform_draw_rectangle(EXPAND_RECT(RESET_RECTANGLE_BORDER), GRAY);
+	platform_draw_rectangle(EXPAND_RECT(RESET_RECTANGLE), BLACK);
 	platform_draw_text_ex(reset_content->game_over_text,
-			reset_content->game_over_position,
+			reset_content->game_over_position.x,
+			reset_content->game_over_position.y,
 			reset_content->font_size,
 			reset_content->spacing, WHITE);
 
 	const u32 reset_color = is_reset_selected ? YELLOW : WHITE;
 	platform_draw_text_ex(reset_content->reset_text,
-			reset_content->reset_position,
+			reset_content->reset_position.x,
+			reset_content->reset_position.y,
 			reset_content->font_size,
 			reset_content->spacing, reset_color);
 

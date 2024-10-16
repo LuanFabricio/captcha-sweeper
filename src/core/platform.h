@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+#define EXPAND_RECT(rect)rect.x, rect.y, rect.w, rect.h
+
 i32 platform_rand();
 
 void platform_init_window(u32 width, u32 height, const char* title);
@@ -19,16 +21,14 @@ u32 platform_measure_text(const char* text, u32 font_size);
 
 vec2_t platform_measure_text_ex(const char* text, u32 font_size, u32 spacing);
 
-// TODO: Move signature to x, y, w and h
-void platform_draw_rectangle(const rectangle_t rect, const u32 color);
+void platform_draw_rectangle(const f32 x, const f32 y, const f32 w, const f32 h, const u32 color);
 
 // TODO: Move signature to texture_bytes, width, height, x and y
 void platform_draw_texture(const texture_t tex, const vec2_t pos, u32 tint);
 
 void platform_draw_text(const char* text, u32 x, u32 y, u32 font, u32 color);
 
-// TODO: Move signature to x,y
-void platform_draw_text_ex(const char* text, vec2_t pos, u32 font, u32 spacing, u32 color);
+void platform_draw_text_ex(const char* text, f32 x, f32 y, u32 font_size, u32 spacing, u32 color);
 
 vec2_t platform_get_mouse_position();
 
